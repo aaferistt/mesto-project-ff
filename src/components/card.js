@@ -1,54 +1,47 @@
 import { openPopup } from "./modal.js";
 
-const cardTemplate = document.querySelector("#card-template").content;
-const placesList = document.querySelector(".places__list");
+const cardTemplate = document.getElementById("card-template").content;
+const $ = (root, cls) => root.querySelector(cls);
 
-// Создаёт карточку и навешивает обработчики
-function createCard(cardData, deleteCard, likeCard, openImageCallback) {
-  const cardElement = cardTemplate.querySelector(".places__item").cloneNode(true);
+// Создаёт карточку
+function createCard({ name, link }, deleteCard, likeCard = handleLike, openImageCallback = handleImageClick) {
+  const root = cardTemplate.cloneNode(true).firstElementChild;
 
-  const image = cardElement.querySelector(".card__image");
-  const title = cardElement.querySelector(".card__title");
+  const img     = $(root, ".card__image");
+  const title   = $(root, ".card__title");
+  const btnDel  = $(root, ".card__delete-button");
+  const btnLike = $(root, ".card__like-button");
 
-  image.src = cardData.link;
-  image.alt = cardData.name;
-  title.textContent = cardData.name;
+  Object.assign(img, { src: link, alt: `Место: ${name}` });
+  title.textContent = name;
 
-  cardElement
-    .querySelector(".card__delete-button")
-    .addEventListener("click", () => deleteCard(cardElement));
+  btnDel .addEventListener("click", () => deleteCard(root));
+  btnLike.addEventListener("click", likeCard);
+  img    .addEventListener("click", () => openImageCallback({ name, link }));
 
-  cardElement
-    .querySelector(".card__like-button")
-    .addEventListener("click", (evt) => likeCard?.(evt));
-
-  image.addEventListener("click", () => handleImageClick(cardData));
-
-  return cardElement;
+  return root;
 }
 
-// Удаляет карточку из DOM
+// Удаляет карточку
 function deleteCard(cardElement) {
   cardElement.remove();
 }
 
-// Открывает попап с изображением
-function handleImageClick({ link, name }) {
+// Показывает изображение
+function handleImageClick({ name, link }) {
   const popup = document.querySelector(".popup_type_image");
+  const img   = popup.querySelector(".popup__image");
+  const cap   = popup.querySelector(".popup__caption");
 
-  const popupImage = popup.querySelector(".popup__image");
-  const popupCaption = popup.querySelector(".popup__caption");
-
-  popupImage.src = link;
-  popupImage.alt = name;
-  popupCaption.textContent = name;
+  Object.assign(img, { src: link, alt: `Место: ${name}` });
+  cap.textContent = name;
 
   openPopup(popup);
 }
 
-// Обрабатывает клик по лайку
+// Переключает лайк
 function handleLike(evt) {
-  evt.target.classList.toggle("card__like-button_is-active");
+  evt.currentTarget.classList.toggle("card__like-button_is-active");
 }
 
 export { createCard, deleteCard, handleLike, handleImageClick };

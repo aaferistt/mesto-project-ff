@@ -1,29 +1,28 @@
-function openPopup(popupElement) {
-  popupElement.classList.add("popup_is-opened");
-  document.addEventListener("keydown", onEscapePress);
+// Открывает попап
+function openPopup(popup) {
+  popup.classList.toggle("popup_is-opened", true);
+  document.addEventListener("keydown", escKeyHandler);
 }
 
-function closeModal(popupElement) {
-  popupElement.classList.remove("popup_is-opened");
-  document.removeEventListener("keydown", onEscapePress);
+// Закрывает попап
+function closeModal(popup) {
+  popup.classList.toggle("popup_is-opened", false);
+  document.removeEventListener("keydown", escKeyHandler);
 }
 
-function onEscapePress(evt) {
+// Закрытие по Esc
+function escKeyHandler(evt) {
   if (evt.key !== "Escape") return;
-
   const activePopup = document.querySelector(".popup_is-opened");
-  if (activePopup) {
-    closeModal(activePopup);
-  }
+  if (activePopup) closeModal(activePopup);
 }
 
+// Закрытие по клику на оверлей или крестик
 function handleOverlayClick(evt) {
-  const isOverlay = evt.target === evt.currentTarget;
-  const isCloseBtn = evt.target.classList.contains("popup__close");
-
-  if (isOverlay || isCloseBtn) {
+  const isCloseBtn = evt.target.closest(".popup__close");
+  if (isCloseBtn || evt.target === evt.currentTarget) {
     closeModal(evt.currentTarget);
   }
 }
 
-export { openPopup, closeModal, onEscapePress as handleEscape, handleOverlayClick };
+export { openPopup, closeModal, escKeyHandler as handleEscape, handleOverlayClick };
