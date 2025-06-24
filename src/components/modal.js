@@ -1,29 +1,29 @@
 function openPopup(popupElement) {
   popupElement.classList.add("popup_is-opened");
-  document.addEventListener("keydown", handleEscape);
+  document.addEventListener("keydown", onEscapePress);
 }
 
-function closeModal(modal) {
-  modal.classList.remove("popup_is-opened");
-  document.removeEventListener("keydown", handleEscape);
+function closeModal(popupElement) {
+  popupElement.classList.remove("popup_is-opened");
+  document.removeEventListener("keydown", onEscapePress);
 }
 
-function handleEscape(evt) {
-  if (evt.key === "Escape") {
-    const openedPopup = document.querySelector(".popup_is-opened");
-    if (openedPopup !== null) {
-      closeModal(openedPopup);
-    }
+function onEscapePress(evt) {
+  if (evt.key !== "Escape") return;
+
+  const activePopup = document.querySelector(".popup_is-opened");
+  if (activePopup) {
+    closeModal(activePopup);
   }
 }
 
-function handleOverlayClick(event) {
-  const isCloseButton = event.target.classList.contains("popup__close");
-  const isOverlayClick = event.target === event.currentTarget;
+function handleOverlayClick(evt) {
+  const isOverlay = evt.target === evt.currentTarget;
+  const isCloseBtn = evt.target.classList.contains("popup__close");
 
-  if (isCloseButton || isOverlayClick) {
-    closeModal(event.currentTarget);
+  if (isOverlay || isCloseBtn) {
+    closeModal(evt.currentTarget);
   }
 }
 
-export { openPopup, closeModal, handleEscape, handleOverlayClick };
+export { openPopup, closeModal, onEscapePress as handleEscape, handleOverlayClick };
