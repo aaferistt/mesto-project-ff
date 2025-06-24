@@ -5,9 +5,7 @@ const placesList = document.querySelector(".places__list");
 
 // Создаёт карточку и навешивает обработчики
 function createCard(cardData, deleteCard, likeCard, openImageCallback) {
-  const cardElement = cardTemplate
-    .querySelector(".places__item")
-    .cloneNode(true);
+  const cardElement = cardTemplate.querySelector(".places__item").cloneNode(true);
 
   const image = cardElement.querySelector(".card__image");
   const title = cardElement.querySelector(".card__title");
@@ -22,7 +20,7 @@ function createCard(cardData, deleteCard, likeCard, openImageCallback) {
 
   cardElement
     .querySelector(".card__like-button")
-    .addEventListener("click", likeCard);
+    .addEventListener("click", (evt) => likeCard?.(evt));
 
   image.addEventListener("click", () => handleImageClick(cardData));
 
@@ -38,9 +36,12 @@ function deleteCard(cardElement) {
 function handleImageClick({ link, name }) {
   const popup = document.querySelector(".popup_type_image");
 
-  popup.querySelector(".popup__image").src = link;
-  popup.querySelector(".popup__image").alt = name;
-  popup.querySelector(".popup__caption").textContent = name;
+  const popupImage = popup.querySelector(".popup__image");
+  const popupCaption = popup.querySelector(".popup__caption");
+
+  popupImage.src = link;
+  popupImage.alt = name;
+  popupCaption.textContent = name;
 
   openPopup(popup);
 }
