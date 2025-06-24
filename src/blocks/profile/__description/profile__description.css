@@ -1,8 +1,8 @@
 .profile__description {
-  font-size: 18px;
-  line-height: 22px;
   grid-area: description;
   margin: 0;
+  font-size: 18px;
+  line-height: 22px;
 }
 
 @media screen and (max-width: 568px) {
