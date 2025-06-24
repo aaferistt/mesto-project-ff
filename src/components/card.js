@@ -1,40 +1,59 @@
 import { openPopup } from "./modal.js";
+
 const cardTemplate = document.querySelector("#card-template").content;
 const placesList = document.querySelector(".places__list");
-const handleLike = (evt) => {
-  evt.target.classList.toggle("card__like-button_is-active");
-};
+
+// Функция создания карточки
 function createCard(cardData, deleteCard, likeCard, openImageCallback) {
   const cardElement = cardTemplate
     .querySelector(".places__item")
     .cloneNode(true);
-  const cardImage = cardElement.querySelector(".card__image");
-  const cardTitle = cardElement.querySelector(".card__title");
-  const deleteButton = cardElement.querySelector(".card__delete-button");
-  const likeButton = cardElement.querySelector(".card__like-button");
-  cardImage.src = cardData.link;
-  cardImage.alt = `Фотография места: ${cardData.name}`;
-  cardTitle.textContent = cardData.name;
-  deleteButton.addEventListener("click", () => deleteCard(cardElement));
-  likeButton.addEventListener("click", function (evt) {
-    if (typeof likeCard === "function") {
-      likeCard(evt);
-    }
+
+  const imageElement = cardElement.querySelector(".card__image");
+  const titleElement = cardElement.querySelector(".card__title");
+  const deleteBtn = cardElement.querySelector(".card__delete-button");
+  const likeBtn = cardElement.querySelector(".card__like-button");
+
+  imageElement.src = cardData.link;
+  imageElement.alt = cardData.name;
+  titleElement.textContent = cardData.name;
+
+  deleteBtn.addEventListener("click", () => {
+    deleteCard(cardElement);
   });
-  cardImage.addEventListener("click", () => handleImageClick(cardData));
+
+  likeBtn.addEventListener("click", (event) => {
+    likeCard?.(event); // безопасный вызов
+  });
+
+  imageElement.addEventListener("click", () => {
+    handleImageClick(cardData);
+  });
+
   return cardElement;
 }
+
+// Функция удаления карточки
 function deleteCard(cardElement) {
   cardElement.remove();
 }
-function handleImageClick(cardData) {
-  const imagePopup = document.querySelector(".popup_type_image");
-  const popupImage = imagePopup.querySelector(".popup__image");
-  const popupCaption = imagePopup.querySelector(".popup__caption");
-  popupImage.src = cardData.link;
-  popupImage.alt = `Фотография места: ${cardData.name}`;
-  popupCaption.textContent = cardData.name;
 
-  openPopup(imagePopup);
+// Функция открытия попапа с изображением
+function handleImageClick(cardData) {
+  const popup = document.querySelector(".popup_type_image");
+  const popupImg = popup.querySelector(".popup__image");
+  const caption = popup.querySelector(".popup__caption");
+
+  popupImg.src = cardData.link;
+  popupImg.alt = cardData.name;
+  caption.textContent = cardData.name;
+
+  openPopup(popup);
 }
+
+// Функция обработки лайка (экспортируется отдельно)
+function handleLike(evt) {
+  evt.target.classList.toggle("card__like-button_is-active");
+}
+
 export { createCard, deleteCard, handleLike, handleImageClick };
