@@ -5,19 +5,25 @@ const placesList = document.querySelector(".places__list");
 
 // Создаёт карточку и навешивает обработчики
 function createCard(cardData, deleteCard, likeCard, openImageCallback) {
-  const cardElement = cardTemplate.querySelector(".places__item").cloneNode(true);
+  const cardElement = cardTemplate
+    .querySelector(".places__item")
+    .cloneNode(true);
 
   const image = cardElement.querySelector(".card__image");
   const title = cardElement.querySelector(".card__title");
-  const deleteButton = cardElement.querySelector(".card__delete-button");
-  const likeButton = cardElement.querySelector(".card__like-button");
 
   image.src = cardData.link;
   image.alt = cardData.name;
   title.textContent = cardData.name;
 
-  deleteButton.addEventListener("click", () => deleteCard(cardElement));
-  likeButton.addEventListener("click", (evt) => likeCard?.(evt));
+  cardElement
+    .querySelector(".card__delete-button")
+    .addEventListener("click", () => deleteCard(cardElement));
+
+  cardElement
+    .querySelector(".card__like-button")
+    .addEventListener("click", likeCard);
+
   image.addEventListener("click", () => handleImageClick(cardData));
 
   return cardElement;
@@ -29,14 +35,12 @@ function deleteCard(cardElement) {
 }
 
 // Открывает попап с изображением
-function handleImageClick(cardData) {
+function handleImageClick({ link, name }) {
   const popup = document.querySelector(".popup_type_image");
-  const popupImage = popup.querySelector(".popup__image");
-  const popupCaption = popup.querySelector(".popup__caption");
 
-  popupImage.src = cardData.link;
-  popupImage.alt = cardData.name;
-  popupCaption.textContent = cardData.name;
+  popup.querySelector(".popup__image").src = link;
+  popup.querySelector(".popup__image").alt = name;
+  popup.querySelector(".popup__caption").textContent = name;
 
   openPopup(popup);
 }
