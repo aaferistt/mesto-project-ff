@@ -1,48 +1,63 @@
 import "../src/pages/index.css";
 import { initialCards } from "./components/cards.js";
+import { createCard, deleteCard, handleLike } from "./components/card.js";
 import {
-  createCard,
-  deleteCard,
-  handleImageClick,
-  handleLike,
-} from "./components/card.js";
-import { openPopup, closeModal, handleOverlayClick } from "./components/modal.js";
+  openPopup,
+  closeModal,
+  handleOverlayClick,
+} from "./components/modal.js";
 
-// DOM-элементы
+// DOM-элементы форм
 const newCardForm = document.forms["new-place"];
 const profileForm = document.forms["edit-profile"];
-
 const cardNameInput = newCardForm.elements["place-name"];
 const cardLinkInput = newCardForm.elements["link"];
-
 const nameInput = profileForm.elements["name"];
 const jobInput = profileForm.elements["description"];
 
+// Попапы
 const popupEdit = document.querySelector(".popup_type_edit");
-const newCardPopup = document.querySelector(".popup_type_new-card");
+const popupNewCard = document.querySelector(".popup_type_new-card");
+const imagePopup = document.querySelector(".popup_type_image");
+const imagePopupImage = imagePopup.querySelector(".popup__image");
+const imagePopupCaption = imagePopup.querySelector(".popup__caption");
 
-const editButton = document.querySelector(".profile__edit-button");
-const addCardButton = document.querySelector(".profile__add-button");
+// Кнопки
+const buttonEditProfile = document.querySelector(".profile__edit-button");
+const buttonAddCard = document.querySelector(".profile__add-button");
 
+// Данные профиля
 const profileName = document.querySelector(".profile__title");
 const profileJob = document.querySelector(".profile__description");
 
+// Контейнер карточек
 const cardsContainer = document.querySelector(".places__list");
 
 // Вспомогательные функции
 function addCardToDOM(cardData, { prepend = false } = {}) {
-  const element = createCard(cardData, deleteCard, handleLike, handleImageClick);
+  const element = createCard(
+    cardData,
+    deleteCard,
+    handleLike,
+    handleImageClick
+  );
   prepend ? cardsContainer.prepend(element) : cardsContainer.append(element);
 }
 
-// Обработка открытия и заполнения формы профиля
+function handleImageClick({ name, link }) {
+  imagePopupImage.src = link;
+  imagePopupImage.alt = `Место: ${name}`;
+  imagePopupCaption.textContent = name;
+  openPopup(imagePopup);
+}
+
 function openProfileEditor() {
   nameInput.value = profileName.textContent.trim();
   jobInput.value = profileJob.textContent.trim();
   openPopup(popupEdit);
 }
 
-function enablePopupAnimations() {
+function applyPopupEnhancements() {
   document.querySelectorAll(".popup").forEach((popup) => {
     popup.classList.add("popup_is-animated");
     popup.addEventListener("click", handleOverlayClick);
@@ -58,7 +73,7 @@ function isValidUrl(value) {
   }
 }
 
-// Обработка отправки формы профиля
+// Обработчики форм
 function handleProfileSubmit(evt) {
   evt.preventDefault();
   profileName.textContent = nameInput.value.trim();
@@ -66,30 +81,25 @@ function handleProfileSubmit(evt) {
   closeModal(popupEdit);
 }
 
-// Обработка отправки формы новой карточки
 function handleNewCardSubmit(evt) {
   evt.preventDefault();
 
   const link = cardLinkInput.value.trim();
-  if (!isValidUrl(link)) {
-    // TODO: показать сообщение об ошибке пользователю
-    return;
-  }
+  if (!isValidUrl(link)) return;
 
   addCardToDOM({ name: cardNameInput.value.trim(), link }, { prepend: true });
   newCardForm.reset();
-  closeModal(newCardPopup);
+  closeModal(popupNewCard);
 }
 
-// Обработка открытия формы добавления карточки
-editButton.addEventListener("click", openProfileEditor);
-addCardButton.addEventListener("click", () => openPopup(newCardPopup));
-
+// Навешиваем слушателей
+buttonEditProfile.addEventListener("click", openProfileEditor);
+buttonAddCard.addEventListener("click", () => openPopup(popupNewCard));
 profileForm.addEventListener("submit", handleProfileSubmit);
 newCardForm.addEventListener("submit", handleNewCardSubmit);
 
-// Первоначальная отрисовка карточек и навешивание обработчиков
+// Инициализация
 document.addEventListener("DOMContentLoaded", () => {
-  initialCards.forEach((card) => addCardToDOM(card));
-  enablePopupAnimations();
+  initialCards.forEach(addCardToDOM);
+  applyPopupEnhancements();
 });

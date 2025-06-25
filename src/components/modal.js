@@ -1,12 +1,12 @@
 // Открывает попап
 function openPopup(popup) {
-  popup.classList.toggle("popup_is-opened", true);
+  popup.classList.add("popup_is-opened");
   document.addEventListener("keydown", escKeyHandler);
 }
 
 // Закрывает попап
 function closeModal(popup) {
-  popup.classList.toggle("popup_is-opened", false);
+  popup.classList.remove("popup_is-opened");
   document.removeEventListener("keydown", escKeyHandler);
 }
 
