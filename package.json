@@ -1,7 +1,7 @@
 {
   "name": "mesto-project-ff",
   "version": "1.0.0",
-  "description": "https://github.com/aaferistt/mesto-project-ff",
+  "description": "Учебный проект Mesto на Webpack",
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
@@ -13,12 +13,12 @@
     "type": "git",
     "url": "git+https://github.com/aaferistt/mesto-project-ff.git"
   },
-  "author": "",
+  "author": "aaferistt",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aaferistt/mesto-project-ff/issues"
   },
-  "homepage": "https://github.com/aaferistt/mesto-project-ff#readme",
+  "homepage": "https://aaferistt.github.io/mesto-project-ff",
   "devDependencies": {
     "@babel/core": "^7.27.3",
     "@babel/preset-env": "^7.27.2",
