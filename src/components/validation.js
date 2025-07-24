@@ -3,7 +3,7 @@
 /* показать текст ошибки */
 const renderError = (form, field, message, cfg) => {
   const span = form.querySelector(`.${field.id}-error`);
-  if (!span) return;                       // если span‑а нет – выходим тихо
+  if (!span) return; // если span‑а нет – выходим тихо
   field.classList.add(cfg.inputErrorClass);
   span.textContent = message;
   span.classList.add(cfg.errorClass);
@@ -14,7 +14,7 @@ const clearError = (form, field, cfg) => {
   const span = form.querySelector(`.${field.id}-error`);
   field.classList.remove(cfg.inputErrorClass);
   if (!span) return;
-  span.textContent = '';
+  span.textContent = "";
   span.classList.remove(cfg.errorClass);
 };
 
@@ -22,7 +22,7 @@ const clearError = (form, field, cfg) => {
 const validateField = (form, field, cfg) => {
   // собственное сообщение, если не прошёл pattern
   field.setCustomValidity(
-    field.validity.patternMismatch ? field.dataset.errorMessage || '' : ''
+    field.validity.patternMismatch ? field.dataset.errorMessage || "" : ""
   );
 
   field.validity.valid
@@ -42,13 +42,13 @@ const updateSubmitState = (fields, button, cfg) => {
 
 /* назначить слушатели одной форме */
 const bindValidation = (form, cfg) => {
-  const fields  = Array.from(form.querySelectorAll(cfg.inputSelector));
-  const submit  = form.querySelector(cfg.submitButtonSelector);
+  const fields = Array.from(form.querySelectorAll(cfg.inputSelector));
+  const submit = form.querySelector(cfg.submitButtonSelector);
 
   updateSubmitState(fields, submit, cfg);
 
   fields.forEach((field) =>
-    field.addEventListener('input', () => {
+    field.addEventListener("input", () => {
       validateField(form, field, cfg);
       updateSubmitState(fields, submit, cfg);
     })
@@ -68,7 +68,7 @@ export const clearValidation = (form, cfg) => {
 
   fields.forEach((field) => {
     clearError(form, field, cfg);
-    field.setCustomValidity('');
+    field.setCustomValidity("");
   });
 
   updateSubmitState(fields, submit, cfg);

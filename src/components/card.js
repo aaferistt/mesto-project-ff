@@ -1,13 +1,13 @@
 // Работа с сервером
 import {
   deleteCard as deleteCardApi,
-  likeCard   as putLikeApi,
-  unlikeCard as removeLikeApi
+  likeCard as putLikeApi,
+  unlikeCard as removeLikeApi,
 } from "./api.js";
 
 // Шаблон и контейнер
 const cardTemplate = document.querySelector("#card-template").content;
-const placesList   = document.querySelector(".places__list"); // пригодится, если понадобится массовый рендер
+const placesList = document.querySelector(".places__list"); // пригодится, если понадобится массовый рендер
 
 /* ------------------------------------------------------------------ */
 /* Лайки                                                               */
@@ -30,7 +30,10 @@ const handleLike = (evt, cardId, likeCounter) => {
       likeBtn.classList.toggle("card__like-button_is-active", !isActive);
     })
     .catch((err) =>
-      console.error(`Ошибка при ${isActive ? "удалении" : "добавлении"} лайка:`, err)
+      console.error(
+        `Ошибка при ${isActive ? "удалении" : "добавлении"} лайка:`,
+        err
+      )
     );
 };
 
@@ -57,7 +60,7 @@ function createCard(cardData, deleteCard, likeCard, openImage, userId) {
     link,
     owner: { _id: ownerId } = {},
     likes = [],
-    _id: cardId
+    _id: cardId,
   } = cardData;
 
   // клонируем узел
@@ -66,10 +69,10 @@ function createCard(cardData, deleteCard, likeCard, openImage, userId) {
     .cloneNode(true);
 
   // кэшируем обязательные элементы
-  const img         = cardElement.querySelector(".card__image");
-  const title       = cardElement.querySelector(".card__title");
-  const btnDelete   = cardElement.querySelector(".card__delete-button");
-  const btnLike     = cardElement.querySelector(".card__like-button");
+  const img = cardElement.querySelector(".card__image");
+  const title = cardElement.querySelector(".card__title");
+  const btnDelete = cardElement.querySelector(".card__delete-button");
+  const btnLike = cardElement.querySelector(".card__like-button");
   const likeCounter = cardElement.querySelector(".place__like-counter");
 
   /* -------- наполняем данными -------- */
@@ -94,8 +97,10 @@ function createCard(cardData, deleteCard, likeCard, openImage, userId) {
   }
 
   // лайк / дизлайк
-  btnLike.addEventListener("click", (evt) =>
-    typeof likeCard === "function" && likeCard(evt, cardId, likeCounter)
+  btnLike.addEventListener(
+    "click",
+    (evt) =>
+      typeof likeCard === "function" && likeCard(evt, cardId, likeCounter)
   );
 
   // открытие полноразмерного изображения

@@ -22,35 +22,35 @@ import {
 import { data } from "autoprefixer";
 
 /* ---------- DOM‑cache ---------- */
-const modals              = document.querySelectorAll(".popup");
-const editButton          = document.querySelector(".profile__edit-button");
-const popupEdit           = document.querySelector(".popup_type_edit");
-const profileForm         = document.querySelector('form[name="edit-profile"]');
-const nameInput           = profileForm.querySelector('[name="name"]');
-const jobInput            = profileForm.querySelector('[name="description"]');
-const profileName         = document.querySelector(".profile__title");
-const profileJob          = document.querySelector(".profile__description");
+const modals = document.querySelectorAll(".popup");
+const editButton = document.querySelector(".profile__edit-button");
+const popupEdit = document.querySelector(".popup_type_edit");
+const profileForm = document.querySelector('form[name="edit-profile"]');
+const nameInput = profileForm.querySelector('[name="name"]');
+const jobInput = profileForm.querySelector('[name="description"]');
+const profileName = document.querySelector(".profile__title");
+const profileJob = document.querySelector(".profile__description");
 
-const newCardPopup        = document.querySelector(".popup_type_new-card");
-const openCardButton      = document.querySelector(".profile__add-button");
-const formElementCard     = document.querySelector('form[name="new-place"]');
-const nameInputPlace      = formElementCard.querySelector('[name="place-name"]');
-const linkInputPlace      = formElementCard.querySelector('[name="link"]');
-const placesList          = document.querySelector(".places__list");
+const newCardPopup = document.querySelector(".popup_type_new-card");
+const openCardButton = document.querySelector(".profile__add-button");
+const formElementCard = document.querySelector('form[name="new-place"]');
+const nameInputPlace = formElementCard.querySelector('[name="place-name"]');
+const linkInputPlace = formElementCard.querySelector('[name="link"]');
+const placesList = document.querySelector(".places__list");
 
-const popupEditAvatar     = document.querySelector(".popup_type_edit-avatar");
-const formEditAvatar      = document.querySelector('form[name="edit-avatar"]');
-const avatarInput         = formEditAvatar.querySelector(".popup__input_type_avatar");
-const btnOpenAvatarPopup  = document.querySelector(".profile__avatar-button");
+const popupEditAvatar = document.querySelector(".popup_type_edit-avatar");
+const formEditAvatar = document.querySelector('form[name="edit-avatar"]');
+const avatarInput = formEditAvatar.querySelector(".popup__input_type_avatar");
+const btnOpenAvatarPopup = document.querySelector(".profile__avatar-button");
 
 /* ---------- validation ---------- */
 const validationConfig = {
-  formSelector        : ".popup__form",
-  inputSelector       : ".popup__input",
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
-  inactiveButtonClass : "popup__button_disabled",
-  inputErrorClass     : "popup__input_type_error",
-  errorClass          : "popup__error_visible",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
 };
 enableValidation(validationConfig);
 
@@ -60,17 +60,17 @@ let userId = null;
 const handleButtonState = (btn, loading) => {
   if (!btn) return;
   btn.textContent = loading ? "Сохранение..." : "Сохранить";
-  btn.disabled    = loading;
+  btn.disabled = loading;
   btn.classList.toggle(validationConfig.inactiveButtonClass, loading);
 };
 
 const handleImageClick = (card) => {
-  const imagePopup     = document.querySelector(".popup_type_image");
-  const popupImage     = imagePopup.querySelector(".popup__image");
-  const popupCaption   = imagePopup.querySelector(".popup__caption");
+  const imagePopup = document.querySelector(".popup_type_image");
+  const popupImage = imagePopup.querySelector(".popup__image");
+  const popupCaption = imagePopup.querySelector(".popup__caption");
 
-  popupImage.src       = card.link;
-  popupImage.alt       = `Фотография места: ${card.name}`;
+  popupImage.src = card.link;
+  popupImage.alt = `Фотография места: ${card.name}`;
   popupCaption.textContent = card.name;
 
   openPopup(imagePopup);
@@ -97,9 +97,10 @@ const renderCard = (data, { prepend = false } = {}) => {
 
     userId = userData._id;
     profileName.textContent = userData.name;
-    profileJob.textContent  = userData.about;
-    document.querySelector(".profile__image").style.backgroundImage =
-      `url(${userData.avatar})`;
+    profileJob.textContent = userData.about;
+    document.querySelector(
+      ".profile__image"
+    ).style.backgroundImage = `url(${userData.avatar})`;
 
     placesList.innerHTML = "";
     cardsData.forEach(renderCard);
@@ -122,8 +123,9 @@ formEditAvatar.addEventListener("submit", async (evt) => {
 
   try {
     const userData = await updateAvatar(avatarInput.value);
-    document.querySelector(".profile__image").style.backgroundImage =
-      `url(${userData.avatar})`;
+    document.querySelector(
+      ".profile__image"
+    ).style.backgroundImage = `url(${userData.avatar})`;
     closeModal(popupEditAvatar);
   } catch (err) {
     console.error("Ошибка обновления аватара:", err);
@@ -136,7 +138,7 @@ formEditAvatar.addEventListener("submit", async (evt) => {
 editButton.addEventListener("click", () => {
   clearValidation(profileForm, validationConfig);
   nameInput.value = profileName.textContent;
-  jobInput.value  = profileJob.textContent;
+  jobInput.value = profileJob.textContent;
   openPopup(popupEdit);
 });
 
@@ -148,7 +150,7 @@ profileForm.addEventListener("submit", async (evt) => {
   try {
     await updateProfile(nameInput.value, jobInput.value);
     profileName.textContent = nameInput.value;
-    profileJob.textContent  = jobInput.value;
+    profileJob.textContent = jobInput.value;
     closeModal(popupEdit);
   } catch (err) {
     console.error("Ошибка при обновлении профиля:", err);
