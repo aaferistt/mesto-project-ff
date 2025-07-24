@@ -1,57 +1,56 @@
 // Работа с сервером
 import {
   deleteCard as deleteCardApi,
-  likeCard as putLikeApi,
+  likeCard   as putLikeApi,
   unlikeCard as removeLikeApi,
-} from "./api.js";
+} from './api.js';
 
-// Шаблон и контейнер
-const cardTemplate = document.querySelector("#card-template").content;
-const placesList = document.querySelector(".places__list"); // пригодится, если понадобится массовый рендер
+// Шаблон карточки
+const cardTemplate = document.querySelector('#card-template').content;
 
 /* ------------------------------------------------------------------ */
-/* Лайки                                                               */
+/* Лайки                                                              */
 /* ------------------------------------------------------------------ */
 
 /**
  * Обработчик клика по сердечку.
- * Tогgles лайк на сервере и обновляет счётчик.
+ * Toggles лайк на сервере и обновляет счётчик.
  */
 const handleLike = (evt, cardId, likeCounter) => {
-  const likeBtn = evt.target;
-  const isActive = likeBtn.classList.contains("card__like-button_is-active");
+  const likeBtn  = evt.target;
+  const isActive = likeBtn.classList.contains('card__like-button_is-active');
 
-  // выбираем нужный API‑метод в зависимости от текущего состояния кнопки
+  // выбираем нужный API‑метод в зависимости от текущего состояния
   const apiAction = isActive ? removeLikeApi : putLikeApi;
 
   apiAction(cardId)
     .then(({ likes }) => {
       likeCounter.textContent = likes.length;
-      likeBtn.classList.toggle("card__like-button_is-active", !isActive);
+      likeBtn.classList.toggle('card__like-button_is-active', !isActive);
     })
     .catch((err) =>
       console.error(
-        `Ошибка при ${isActive ? "удалении" : "добавлении"} лайка:`,
-        err
-      )
+        `Ошибка при ${isActive ? 'удалении' : 'добавлении'} лайка:`,
+        err,
+      ),
     );
 };
 
 /* ------------------------------------------------------------------ */
-/* Карточка                                                            */
+/* Карточка                                                           */
 /* ------------------------------------------------------------------ */
 
 /**
  * Генерация DOM‑элемента карточки.
  * @param {Object}   cardData    — данные карточки с сервера
- * @param {Function} deleteCard  — колбэк удаления (со всплывающим подтверждением)
- * @param {Function} likeCard    — колбэк лайка (обертка над handleLike)
+ * @param {Function} deleteCard  — колбэк удаления
+ * @param {Function} likeCard    — колбэк лайка (обёртка над handleLike)
  * @param {Function} openImage   — колбэк открытия полноразмерной картинки
  * @param {String}   userId      — id текущего пользователя
  */
 function createCard(cardData, deleteCard, likeCard, openImage, userId) {
   if (!cardData) {
-    console.error("createCard: cardData не передан");
+    console.error('createCard: cardData не передан');
     return null;
   }
 
@@ -65,15 +64,15 @@ function createCard(cardData, deleteCard, likeCard, openImage, userId) {
 
   // клонируем узел
   const cardElement = cardTemplate
-    .querySelector(".places__item")
+    .querySelector('.places__item')
     .cloneNode(true);
 
-  // кэшируем обязательные элементы
-  const img = cardElement.querySelector(".card__image");
-  const title = cardElement.querySelector(".card__title");
-  const btnDelete = cardElement.querySelector(".card__delete-button");
-  const btnLike = cardElement.querySelector(".card__like-button");
-  const likeCounter = cardElement.querySelector(".place__like-counter");
+  // кэшируем элементы
+  const img         = cardElement.querySelector('.card__image');
+  const title       = cardElement.querySelector('.card__title');
+  const btnDelete   = cardElement.querySelector('.card__delete-button');
+  const btnLike     = cardElement.querySelector('.card__like-button');
+  const likeCounter = cardElement.querySelector('.place__like-counter');
 
   /* -------- наполняем данными -------- */
   img.src = link;
@@ -82,29 +81,31 @@ function createCard(cardData, deleteCard, likeCard, openImage, userId) {
 
   likeCounter.textContent = likes.length;
 
-  // если среди лайков уже есть текущий пользователь — красим сердечко
+  // подсвечиваем, если уже лайкнули
   if (likes.some(({ _id }) => _id === userId)) {
-    btnLike.classList.add("card__like-button_is-active");
+    btnLike.classList.add('card__like-button_is-active');
   }
 
   /* -------- слушатели -------- */
 
   // удаление (только на своих карточках)
   if (ownerId === userId) {
-    btnDelete.addEventListener("click", () => deleteCard(cardElement, cardId));
+    btnDelete.addEventListener('click', () =>
+      deleteCard(cardElement, cardId),
+    );
   } else {
     btnDelete.remove();
   }
 
   // лайк / дизлайк
-  btnLike.addEventListener(
-    "click",
-    (evt) =>
-      typeof likeCard === "function" && likeCard(evt, cardId, likeCounter)
-  );
+  btnLike.addEventListener('click', (evt) => {
+    if (typeof likeCard === 'function') {
+      likeCard(evt, cardId, likeCounter);
+    }
+  });
 
   // открытие полноразмерного изображения
-  img.addEventListener("click", () => openImage(cardData));
+  img.addEventListener('click', () => openImage(cardData));
 
   return cardElement;
 }
@@ -119,11 +120,10 @@ function createCard(cardData, deleteCard, likeCard, openImage, userId) {
 const deleteCard = (cardElement, cardId) => {
   deleteCardApi(cardId)
     .then(() => cardElement.remove())
-    .catch((err) => console.error("Ошибка при удалении карточки:", err));
+    .catch((err) => console.error('Ошибка при удалении карточки:', err));
 };
 
 /* ------------------------------------------------------------------ */
 /* Экспорт                                                            */
 /* ------------------------------------------------------------------ */
-
 export { createCard, deleteCard, handleLike };

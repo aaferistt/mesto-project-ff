@@ -1,5 +1,3 @@
-/* pages / index.js
-   ─────────────────────────────────────────────────────────────────── */
 import '../src/pages/index.css';
 
 import { createCard, deleteCard, handleLike } from './components/card.js';
@@ -20,7 +18,7 @@ import {
   updateAvatar,
 } from './components/api.js';
 
-/* -------------------- DOM‑cache -------------------- */
+/* --------------------  DOM‑cache  -------------------- */
 const modals            = document.querySelectorAll('.popup');
 
 const editButton        = document.querySelector('.profile__edit-button');
@@ -42,6 +40,11 @@ const avatarPopup       = document.querySelector('.popup_type_edit-avatar');
 const avatarForm        = document.forms['edit-avatar'];
 const avatarInput       = avatarForm.elements['avatar'];
 const avatarBtn         = document.querySelector('.profile__avatar-button');
+
+/* — кэш элементов попапа‑просмотра карточки (искомое замечание ревью) */
+const imagePopup        = document.querySelector('.popup_type_image');
+const popupImage        = imagePopup.querySelector('.popup__image');
+const popupCaption      = imagePopup.querySelector('.popup__caption');
 
 /* -------------------- validation -------------------- */
 const validationConfig = {
@@ -65,11 +68,10 @@ function setLoading(btn, isLoading) {
 }
 
 function handleImageClick({ name, link }) {
-  const popup      = document.querySelector('.popup_type_image');
-  popup.querySelector('.popup__image').src  = link;
-  popup.querySelector('.popup__image').alt  = `Фотография места: ${name}`;
-  popup.querySelector('.popup__caption').textContent = name;
-  openPopup(popup);
+  popupImage.src         = link;
+  popupImage.alt         = `Фотография места: ${name}`;
+  popupCaption.textContent = name;
+  openPopup(imagePopup);
 }
 
 function addCardToDOM(cardData, { prepend = false } = {}) {
