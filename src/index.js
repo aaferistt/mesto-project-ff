@@ -1,105 +1,190 @@
 import "../src/pages/index.css";
-import { initialCards } from "./components/cards.js";
 import { createCard, deleteCard, handleLike } from "./components/card.js";
 import {
   openPopup,
   closeModal,
+  handleEscape,
   handleOverlayClick,
 } from "./components/modal.js";
+import {
+  enableValidation,
+  toggleButtonState,
+  clearValidation,
+} from "./components/validation.js";
+import {
+  getUserInfo,
+  checkResponse,
+  getInitialCards,
+  updateProfile,
+  addNewCard,
+  updateAvatar,
+} from "./components/api.js";
+import { data } from "autoprefixer";
 
-// DOM-элементы форм
-const newCardForm = document.forms["new-place"];
-const profileForm = document.forms["edit-profile"];
-const cardNameInput = newCardForm.elements["place-name"];
-const cardLinkInput = newCardForm.elements["link"];
-const nameInput = profileForm.elements["name"];
-const jobInput = profileForm.elements["description"];
+/* ---------- DOM‑cache ---------- */
+const modals              = document.querySelectorAll(".popup");
+const editButton          = document.querySelector(".profile__edit-button");
+const popupEdit           = document.querySelector(".popup_type_edit");
+const profileForm         = document.querySelector('form[name="edit-profile"]');
+const nameInput           = profileForm.querySelector('[name="name"]');
+const jobInput            = profileForm.querySelector('[name="description"]');
+const profileName         = document.querySelector(".profile__title");
+const profileJob          = document.querySelector(".profile__description");
 
-// Попапы
-const popupEdit = document.querySelector(".popup_type_edit");
-const popupNewCard = document.querySelector(".popup_type_new-card");
-const imagePopup = document.querySelector(".popup_type_image");
-const imagePopupImage = imagePopup.querySelector(".popup__image");
-const imagePopupCaption = imagePopup.querySelector(".popup__caption");
+const newCardPopup        = document.querySelector(".popup_type_new-card");
+const openCardButton      = document.querySelector(".profile__add-button");
+const formElementCard     = document.querySelector('form[name="new-place"]');
+const nameInputPlace      = formElementCard.querySelector('[name="place-name"]');
+const linkInputPlace      = formElementCard.querySelector('[name="link"]');
+const placesList          = document.querySelector(".places__list");
 
-// Кнопки
-const buttonEditProfile = document.querySelector(".profile__edit-button");
-const buttonAddCard = document.querySelector(".profile__add-button");
+const popupEditAvatar     = document.querySelector(".popup_type_edit-avatar");
+const formEditAvatar      = document.querySelector('form[name="edit-avatar"]');
+const avatarInput         = formEditAvatar.querySelector(".popup__input_type_avatar");
+const btnOpenAvatarPopup  = document.querySelector(".profile__avatar-button");
 
-// Данные профиля
-const profileName = document.querySelector(".profile__title");
-const profileJob = document.querySelector(".profile__description");
+/* ---------- validation ---------- */
+const validationConfig = {
+  formSelector        : ".popup__form",
+  inputSelector       : ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass : "popup__button_disabled",
+  inputErrorClass     : "popup__input_type_error",
+  errorClass          : "popup__error_visible",
+};
+enableValidation(validationConfig);
 
-// Контейнер карточек
-const cardsContainer = document.querySelector(".places__list");
+/* ---------- helpers ---------- */
+let userId = null;
 
-// Вспомогательные функции
-function addCardToDOM(cardData, { prepend = false } = {}) {
+const handleButtonState = (btn, loading) => {
+  if (!btn) return;
+  btn.textContent = loading ? "Сохранение..." : "Сохранить";
+  btn.disabled    = loading;
+  btn.classList.toggle(validationConfig.inactiveButtonClass, loading);
+};
+
+const handleImageClick = (card) => {
+  const imagePopup     = document.querySelector(".popup_type_image");
+  const popupImage     = imagePopup.querySelector(".popup__image");
+  const popupCaption   = imagePopup.querySelector(".popup__caption");
+
+  popupImage.src       = card.link;
+  popupImage.alt       = `Фотография места: ${card.name}`;
+  popupCaption.textContent = card.name;
+
+  openPopup(imagePopup);
+};
+
+const renderCard = (data, { prepend = false } = {}) => {
   const element = createCard(
-    cardData,
+    data,
     deleteCard,
     handleLike,
-    handleImageClick
+    handleImageClick,
+    userId
   );
-  prepend ? cardsContainer.prepend(element) : cardsContainer.append(element);
-}
+  prepend ? placesList.prepend(element) : placesList.append(element);
+};
 
-function handleImageClick({ name, link }) {
-  imagePopupImage.src = link;
-  imagePopupImage.alt = `Место: ${name}`;
-  imagePopupCaption.textContent = name;
-  openPopup(imagePopup);
-}
-
-function openProfileEditor() {
-  nameInput.value = profileName.textContent.trim();
-  jobInput.value = profileJob.textContent.trim();
-  openPopup(popupEdit);
-}
-
-function applyPopupEnhancements() {
-  document.querySelectorAll(".popup").forEach((popup) => {
-    popup.classList.add("popup_is-animated");
-    popup.addEventListener("click", handleOverlayClick);
-  });
-}
-
-function isValidUrl(value) {
+/* ---------- начальная загрузка ---------- */
+(async () => {
   try {
-    new URL(value);
-    return true;
-  } catch {
-    return false;
+    const [cardsData, userData] = await Promise.all([
+      getInitialCards(),
+      getUserInfo(),
+    ]);
+
+    userId = userData._id;
+    profileName.textContent = userData.name;
+    profileJob.textContent  = userData.about;
+    document.querySelector(".profile__image").style.backgroundImage =
+      `url(${userData.avatar})`;
+
+    placesList.innerHTML = "";
+    cardsData.forEach(renderCard);
+  } catch (err) {
+    console.error(`Ошибка загрузки: ${err}`);
   }
-}
+})();
 
-// Обработчики форм
-function handleProfileSubmit(evt) {
+/* ---------- avatar ---------- */
+btnOpenAvatarPopup.addEventListener("click", () => {
+  formEditAvatar.reset();
+  clearValidation(formEditAvatar, validationConfig);
+  openPopup(popupEditAvatar);
+});
+
+formEditAvatar.addEventListener("submit", async (evt) => {
   evt.preventDefault();
-  profileName.textContent = nameInput.value.trim();
-  profileJob.textContent = jobInput.value.trim();
-  closeModal(popupEdit);
-}
+  const btn = evt.submitter;
+  handleButtonState(btn, true);
 
-function handleNewCardSubmit(evt) {
+  try {
+    const userData = await updateAvatar(avatarInput.value);
+    document.querySelector(".profile__image").style.backgroundImage =
+      `url(${userData.avatar})`;
+    closeModal(popupEditAvatar);
+  } catch (err) {
+    console.error("Ошибка обновления аватара:", err);
+  } finally {
+    handleButtonState(btn, false);
+  }
+});
+
+/* ---------- profile ---------- */
+editButton.addEventListener("click", () => {
+  clearValidation(profileForm, validationConfig);
+  nameInput.value = profileName.textContent;
+  jobInput.value  = profileJob.textContent;
+  openPopup(popupEdit);
+});
+
+profileForm.addEventListener("submit", async (evt) => {
   evt.preventDefault();
+  const btn = evt.submitter;
+  handleButtonState(btn, true);
 
-  const link = cardLinkInput.value.trim();
-  if (!isValidUrl(link)) return;
+  try {
+    await updateProfile(nameInput.value, jobInput.value);
+    profileName.textContent = nameInput.value;
+    profileJob.textContent  = jobInput.value;
+    closeModal(popupEdit);
+  } catch (err) {
+    console.error("Ошибка при обновлении профиля:", err);
+  } finally {
+    handleButtonState(btn, false);
+  }
+});
 
-  addCardToDOM({ name: cardNameInput.value.trim(), link }, { prepend: true });
-  newCardForm.reset();
-  closeModal(popupNewCard);
-}
+/* ---------- новая карточка ---------- */
+openCardButton.addEventListener("click", () => {
+  formElementCard.reset();
+  clearValidation(formElementCard, validationConfig);
+  openPopup(newCardPopup);
+});
 
-// Навешиваем слушателей
-buttonEditProfile.addEventListener("click", openProfileEditor);
-buttonAddCard.addEventListener("click", () => openPopup(popupNewCard));
-profileForm.addEventListener("submit", handleProfileSubmit);
-newCardForm.addEventListener("submit", handleNewCardSubmit);
+formElementCard.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const btn = evt.submitter;
+  handleButtonState(btn, true);
 
-// Инициализация
+  try {
+    const data = await addNewCard(nameInputPlace.value, linkInputPlace.value);
+    renderCard(data, { prepend: true });
+    formElementCard.reset();
+    closeModal(newCardPopup);
+  } catch (err) {
+    console.error("Ошибка при создании карточки:", err);
+  } finally {
+    handleButtonState(btn, false);
+  }
+});
+
+/* ---------- модальные окна общие ---------- */
 document.addEventListener("DOMContentLoaded", () => {
-  initialCards.forEach(addCardToDOM);
-  applyPopupEnhancements();
+  modals.forEach((p) => {
+    p.classList.add("popup_is-animated");
+    p.addEventListener("click", handleOverlayClick);
+  });
 });

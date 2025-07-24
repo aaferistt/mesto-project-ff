@@ -5,6 +5,7 @@
   border: none;
   padding: 0;
   background: transparent url("../../../images/like-inactive.svg") no-repeat;
+
   background-size: 21px 18px;
   -webkit-transition: 0.3s;
   -moz-transition: 0.3s;
@@ -16,4 +17,14 @@
 
 .card__like-button:hover {
   opacity: 0.6;
+}
+.place__like-counter {
+  position: absolute;
+  right: 24px;
+  bottom: 19px;
+  width: 10px;
+  height: 13px;
+  color: #000;
+  font-size: 13px;
+  line-height: 16px;
 }

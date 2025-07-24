@@ -11,3 +11,13 @@
     padding: 15px 0 18px;
   }
 }
+.place__like-counter {
+  position: absolute;
+  right: 25px;
+  bottom: 18px;
+  width: 10px;
+  height: 13px;
+  color: #000;
+  font-size: 13px;
+  line-height: 16px;
+}
